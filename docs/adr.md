@@ -39,3 +39,5 @@ Suporte:
 - MongoDB
 - Kubernetes
 - Next.js
+
+- [ ] Link com o desenho de arquitetura
