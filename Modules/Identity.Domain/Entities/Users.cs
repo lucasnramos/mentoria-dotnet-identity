@@ -15,7 +15,7 @@ public class Users : Entity<Guid>
         Email = email;
         Password = password;
         Type = type;
-        Id = Guid.NewGuid(); // Ensure Id is set to a new Guid
+        Id = Guid.NewGuid();
     }
 
     public string Name { get; private set; }
@@ -25,8 +25,6 @@ public class Users : Entity<Guid>
 
     public bool VerifyPassword(string password)
     {
-        // Implement password verification logic here
-        // For example, compare the hashed password with the stored hash
-        return Password == password; // Simplified for demonstration purposes
+        return Password == password;
     }
 }
