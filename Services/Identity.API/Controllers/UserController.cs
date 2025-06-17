@@ -1,6 +1,8 @@
 using Identity.Application.AppUser.Input;
 using Identity.Application.AppUser.Interfaces;
+using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.API.Controllers
@@ -25,6 +27,11 @@ namespace Identity.API.Controllers
         [HttpGet("email")]
         public async Task<IActionResult> GetUserByEmailAsync([FromQuery] string email)
         {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email is required.");
+            }
+
             var userByEmail = await _userAppService.GetUserByEmailAsync(email);
             return Ok(userByEmail);
         }
@@ -33,8 +40,13 @@ namespace Identity.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] UserInput userInput)
         {
-            await _userAppService.InsertAsync(userInput);
-            return Ok();
+            var existingUser = await _userAppService.GetUserByEmailAsync(userInput.Email);
+            if (existingUser != null)
+            {
+                return Conflict("User with this email already exists.");
+            }
+            var newUser = await _userAppService.InsertAsync(userInput);
+            return CreatedAtAction(nameof(AddUserAsync), newUser);
         }
     }
 }

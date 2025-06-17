@@ -23,10 +23,11 @@ public class UserAppService(IUserRepository userRepository) : IUserAppService
         return user;
     }
 
-    public async Task InsertAsync(UserInput userInput)
+    public async Task<Users> InsertAsync(UserInput userInput)
     {
         var user = new Users(userInput.Name, userInput.Email, userInput.Password, userInput.Type);
         await _userRepository.InsertAsync(user);
+        return user;
     }
 
 }

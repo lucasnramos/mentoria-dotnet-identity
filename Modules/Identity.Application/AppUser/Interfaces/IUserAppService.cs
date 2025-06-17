@@ -6,7 +6,7 @@ namespace Identity.Application.AppUser.Interfaces;
 
 public interface IUserAppService
 {
-    Task InsertAsync(UserInput userInput);
+    Task<Users> InsertAsync(UserInput userInput);
     Task<IEnumerable<Users>> GetAllAsync();
     Task<Users> GetUserByEmailAsync(string email);
 }
