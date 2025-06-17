@@ -15,6 +15,21 @@ namespace Identity.API.Controllers
             _userAppService = userAppService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsersAsync()
+        {
+            var users = await _userAppService.GetAllAsync();
+            return Ok(users);
+        }
+
+        [HttpGet("email")]
+        public async Task<IActionResult> GetUserByEmailAsync([FromQuery] string email)
+        {
+            var userByEmail = await _userAppService.GetUserByEmailAsync(email);
+            return Ok(userByEmail);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] UserInput userInput)
         {
