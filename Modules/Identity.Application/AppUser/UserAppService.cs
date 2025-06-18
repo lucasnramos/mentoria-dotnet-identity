@@ -17,7 +17,7 @@ public class UserAppService(IUserRepository userRepository) : IUserAppService
         return users;
     }
 
-    public async Task<Users> GetUserByEmailAsync(string email)
+    public async Task<Users> GetByEmailAsync(string email)
     {
         var user = await _userRepository.GetByEmailAsync(email);
         return user;
@@ -28,6 +28,23 @@ public class UserAppService(IUserRepository userRepository) : IUserAppService
         var user = new Users(userInput.Name, userInput.Email, userInput.Password, userInput.Type);
         await _userRepository.InsertAsync(user);
         return user;
+    }
+
+    public async Task<Users> GetByIdAsync(Guid id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        return user;
+    }
+
+    public async Task<Users> UpdateAsync(Guid id, UserInput userInput)
+    {
+        var user = await _userRepository.GetByIdAsync(id) ?? throw new Exception("User not found");
+        return user;
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        await _userRepository.DeleteAsync(id);
     }
 
 }

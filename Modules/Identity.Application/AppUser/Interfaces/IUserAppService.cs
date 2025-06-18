@@ -8,5 +8,6 @@ public interface IUserAppService
 {
     Task<Users> InsertAsync(UserInput userInput);
     Task<IEnumerable<Users>> GetAllAsync();
-    Task<Users> GetUserByEmailAsync(string email);
+    Task<Users> GetByEmailAsync(string email);
+    Task<Users> GetByIdAsync(Guid id);
 }
