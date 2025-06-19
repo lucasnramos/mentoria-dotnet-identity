@@ -10,4 +10,5 @@ public interface IUserAppService
     Task<IEnumerable<Users>> GetAllAsync();
     Task<Users> GetByEmailAsync(string email);
     Task<Users> GetByIdAsync(Guid id);
+    Task<Users> UpdateAsync(Guid id, UserInput userInput);
 }

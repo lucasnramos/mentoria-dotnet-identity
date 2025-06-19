@@ -33,6 +33,12 @@ namespace Identity.API.Controllers
             }
 
             var userByEmail = await _userAppService.GetByEmailAsync(email);
+
+            if (userByEmail == null)
+            {
+                return NotFound($"User with email {email} not found.");
+            }
+
             return Ok(userByEmail);
         }
 
@@ -46,19 +52,23 @@ namespace Identity.API.Controllers
                 return Conflict("User with this email already exists.");
             }
             var newUser = await _userAppService.InsertAsync(userInput);
-            return CreatedAtAction(nameof(AddUserAsync), newUser);
+            return Created("", newUser);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateUserAsync([FromQuery] Guid Id, [FromBody] UserInput userInput)
         {
-            if (userInput == null || Id == Guid.Empty)
+            if (Id == Guid.Empty)
             {
-                return BadRequest("Invalid user data."); // needs better error handling and messages
+                return BadRequest("Id is required"); // needs better error handling and messages
             }
-            var user = await _userAppService.GetByIdAsync(Id);
+            if (userInput == null)
+            {
+                return BadRequest("User information is required");
+            }
+            var user = await _userAppService.UpdateAsync(Id, userInput);
 
-            return Ok();
+            return Accepted(user);
         }
     }
 }

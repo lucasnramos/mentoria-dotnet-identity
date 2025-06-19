@@ -38,7 +38,9 @@ public class UserAppService(IUserRepository userRepository) : IUserAppService
 
     public async Task<Users> UpdateAsync(Guid id, UserInput userInput)
     {
-        var user = await _userRepository.GetByIdAsync(id) ?? throw new Exception("User not found");
+        var user = await _userRepository.GetByIdAsync(id);
+        user.Update(userInput.Name, userInput.Email, userInput.Password, userInput.Type);
+        await _userRepository.UpdateAsync(user);
         return user;
     }
 
