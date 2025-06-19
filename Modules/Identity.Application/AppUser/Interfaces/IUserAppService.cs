@@ -11,4 +11,6 @@ public interface IUserAppService
     Task<Users> GetByEmailAsync(string email);
     Task<Users> GetByIdAsync(Guid id);
     Task<Users> UpdateAsync(Guid id, UserInput userInput);
+    Task DeleteAsync(Guid id);
+    Task DeleteAllAsync();
 }

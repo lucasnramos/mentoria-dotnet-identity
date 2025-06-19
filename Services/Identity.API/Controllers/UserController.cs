@@ -70,5 +70,23 @@ namespace Identity.API.Controllers
 
             return Accepted(user);
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUserAsync([FromQuery] Guid Id)
+        {
+            if (Id == Guid.Empty)
+            {
+                return BadRequest("Id is required");
+            }
+            await _userAppService.DeleteAsync(Id);
+            return NoContent();
+        }
+
+        [HttpDelete("all")]
+        public async Task<IActionResult> DeleteAllUsersAsync()
+        {
+            await _userAppService.DeleteAllAsync();
+            return NoContent();
+        }
     }
 }

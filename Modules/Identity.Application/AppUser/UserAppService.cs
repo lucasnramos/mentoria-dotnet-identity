@@ -49,4 +49,17 @@ public class UserAppService(IUserRepository userRepository) : IUserAppService
         await _userRepository.DeleteAsync(id);
     }
 
+    public async Task DeleteAllAsync()
+    {
+        var users = await _userRepository.GetAllAsync();
+
+        if (users.Any())
+        {
+            foreach (var user in users)
+            {
+                await _userRepository.DeleteAsync(user.Id);
+            }
+        }
+    }
+
 }
