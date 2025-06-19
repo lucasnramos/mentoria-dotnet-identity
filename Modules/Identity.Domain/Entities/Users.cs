@@ -27,4 +27,11 @@ public class Users : Entity<Guid>
     {
         return Password == password;
     }
+    public void Update(string name, string email, string password, int type)
+    {
+        Name = name;
+        Email = email;
+        Password = password;
+        Type = type;
+    }
 }
