@@ -24,8 +24,8 @@ namespace Identity.API.Controllers
             return Ok(users);
         }
 
-        [HttpGet("email")]
-        public async Task<IActionResult> GetUserByEmailAsync([FromQuery] string email)
+        [HttpGet("email/{email}")]
+        public async Task<IActionResult> GetUserByEmailAsync(string email)
         {
             if (string.IsNullOrEmpty(email))
             {
@@ -42,6 +42,22 @@ namespace Identity.API.Controllers
             return Ok(userByEmail);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserByIdAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest("Id is required.");
+            }
+
+            var user = await _userAppService.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound($"User with Id {id} not found.");
+            }
+
+            return Ok(user);
+        }
 
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] UserInput userInput)
