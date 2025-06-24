@@ -69,11 +69,18 @@ namespace Identity.API.Controllers
             try
             {
                 var newUser = await _userAppService.InsertAsync(userInput);
-                return Created("", newUser);
+                var id = newUser.Id;
+                // CreatedAtAction is returning System.InvalidOperationException: No route matches the supplied values.
+                // return CreatedAtAction(nameof(GetUserByIdAsync), new { id }, newUser);
+                return Created($"api/user/{id}", newUser);
             }
             catch (ArgumentException ex)
             {
                 return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
