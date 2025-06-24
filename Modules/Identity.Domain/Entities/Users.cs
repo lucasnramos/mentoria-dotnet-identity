@@ -34,4 +34,24 @@ public class Users : Entity<Guid>
         Password = password;
         Type = type;
     }
+
+    public bool Validate()
+    {
+        if (string.IsNullOrEmpty(Name) || string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password))
+        {
+            return false;
+        }
+
+        if (Type < 0)
+        {
+            return false;
+        }
+
+        return IsValidEmail(Email);
+    }
+
+    public static bool IsValidEmail(string email)
+    {
+        return !string.IsNullOrEmpty(email) && email.Contains("@") && email.Contains(".");
+    }
 }

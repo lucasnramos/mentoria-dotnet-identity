@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Identity.Application.AppUser.Input;
 using Identity.Application.AppUser.Interfaces;
 using Identity.Domain.Entities;
@@ -27,75 +28,85 @@ namespace Identity.API.Controllers
         [HttpGet("email/{email}")]
         public async Task<IActionResult> GetUserByEmailAsync(string email)
         {
-            if (string.IsNullOrEmpty(email))
+            try
             {
-                return BadRequest("Email is required.");
+                var userByEmail = await _userAppService.GetByEmailAsync(email);
+                return Ok(userByEmail);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
 
-            var userByEmail = await _userAppService.GetByEmailAsync(email);
 
-            if (userByEmail == null)
-            {
-                return NotFound($"User with email {email} not found.");
-            }
-
-            return Ok(userByEmail);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
-            if (id == Guid.Empty)
+            try
             {
-                return BadRequest("Id is required.");
+                var user = await _userAppService.GetByIdAsync(id);
+                return Ok(user);
             }
-
-            var user = await _userAppService.GetByIdAsync(id);
-            if (user == null)
+            catch (ArgumentException ex)
             {
-                return NotFound($"User with Id {id} not found.");
+                return BadRequest(ex.Message);
             }
-
-            return Ok(user);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] UserInput userInput)
         {
-            var existingUser = await _userAppService.GetByEmailAsync(userInput.Email);
-            if (existingUser != null)
+            try
             {
-                return Conflict("User with this email already exists.");
+                var newUser = await _userAppService.InsertAsync(userInput);
+                return Created("", newUser);
             }
-            var newUser = await _userAppService.InsertAsync(userInput);
-            return Created("", newUser);
+            catch (ArgumentException ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateUserAsync([FromQuery] Guid Id, [FromBody] UserInput userInput)
         {
-            if (Id == Guid.Empty)
+            try
             {
-                return BadRequest("Id is required"); // needs better error handling and messages
+                var user = await _userAppService.UpdateAsync(Id, userInput);
+                return Accepted(user);
             }
-            if (userInput == null)
+            catch (ArgumentException ex)
             {
-                return BadRequest("User information is required");
+                return BadRequest(ex.Message);
             }
-            var user = await _userAppService.UpdateAsync(Id, userInput);
-
-            return Accepted(user);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteUserAsync([FromQuery] Guid Id)
         {
-            if (Id == Guid.Empty)
+            try
             {
-                return BadRequest("Id is required");
+                await _userAppService.DeleteAsync(Id);
+                return NoContent();
             }
-            await _userAppService.DeleteAsync(Id);
-            return NoContent();
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("all")]
