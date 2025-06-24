@@ -51,11 +51,11 @@ public class UserAppService(IUserRepository userRepository) : IUserAppService
     public async Task<Users> InsertAsync(UserInput userInput)
     {
         var user = new Users(userInput.Name, userInput.Email, userInput.Password, userInput.Type);
-        var isValidInput = user.Validate();
+        var isValidInput = user.IsValidUser(out string errorMessage);
         var hasUser = await _userRepository.GetByEmailAsync(userInput.Email);
         if (!isValidInput)
         {
-            throw new ArgumentException("Invalid user input.");
+            throw new ArgumentException($"Invalid user input: {errorMessage}");
         }
 
         if (hasUser != null)
@@ -78,8 +78,16 @@ public class UserAppService(IUserRepository userRepository) : IUserAppService
         }
 
         var user = await _userRepository.GetByIdAsync(id);
+
+        if (user == null)
+        {
+            var newUser = await InsertAsync(userInput);
+            return newUser;
+        }
+
         user.Update(userInput.Name, userInput.Email, userInput.Password, userInput.Type);
         await _userRepository.UpdateAsync(user);
+
         return user;
     }
 

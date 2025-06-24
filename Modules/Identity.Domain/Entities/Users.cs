@@ -35,23 +35,29 @@ public class Users : Entity<Guid>
         Type = type;
     }
 
-    public bool Validate()
+    public bool IsValidUser(out string errorMessage)
     {
-        if (string.IsNullOrEmpty(Name) || string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password))
+        if (string.IsNullOrEmpty(Name))
         {
+            errorMessage = "Name cannot be null or empty.";
             return false;
         }
-
-        if (Type < 0)
+        if (string.IsNullOrEmpty(Email) || !IsValidEmail(Email))
         {
+            errorMessage = $"{Email} is not a valid email address.";
             return false;
         }
-
-        return IsValidEmail(Email);
+        if (string.IsNullOrEmpty(Password))
+        {
+            errorMessage = "Password cannot be null or empty.";
+            return false;
+        }
+        errorMessage = string.Empty;
+        return true;
     }
 
     public static bool IsValidEmail(string email)
     {
-        return !string.IsNullOrEmpty(email) && email.Contains("@") && email.Contains(".");
+        return !string.IsNullOrEmpty(email) && email.Contains('@') && email.Contains('.');
     }
 }
