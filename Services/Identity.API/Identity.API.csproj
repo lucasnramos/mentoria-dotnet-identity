@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Adapters\HttpHandler\HttpHandler.csproj" />
     <ProjectReference Include="..\..\Modules\Identity.Application\Identity.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Identity.Infrastructure.IoC\Identity.Infrastructure.IoC.csproj" />
   </ItemGroup>

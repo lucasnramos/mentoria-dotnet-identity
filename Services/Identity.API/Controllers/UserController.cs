@@ -1,4 +1,6 @@
 using System.Linq.Expressions;
+using HttpHandler.Base;
+using HttpHandler.Handlers;
 using Identity.Application.AppUser.Input;
 using Identity.Application.AppUser.Interfaces;
 using Identity.Domain.Entities;
@@ -10,19 +12,16 @@ namespace Identity.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(MessageHandler messageHandler, IUserAppService userAppService) : HttpHandlerControllerBase(messageHandler)
     {
-        private readonly IUserAppService _userAppService;
-        public UserController(IUserAppService userAppService)
-        {
-            _userAppService = userAppService;
-        }
+        private readonly IUserAppService _userAppService = userAppService;
 
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync()
         {
             var users = await _userAppService.GetAllAsync();
-            return Ok(users);
+            return HandleOkOrNotFound(users);
+            // return Ok(users);
         }
 
         [HttpGet("email/{email}")]
