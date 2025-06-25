@@ -13,7 +13,7 @@ public class Users : Entity<Guid>
     {
         Name = name;
         Email = email;
-        Password = password;
+        Password = PasswordHasher.Hash(password);
         Type = type;
         Id = Guid.NewGuid();
     }
@@ -25,13 +25,14 @@ public class Users : Entity<Guid>
 
     public bool VerifyPassword(string password)
     {
-        return Password == password;
+        return PasswordHasher.Verify(Password, password);
     }
+
     public void Update(string name, string email, string password, int type)
     {
         Name = name;
         Email = email;
-        Password = password;
+        // Password = password; 
         Type = type;
     }
 
