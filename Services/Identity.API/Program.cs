@@ -1,4 +1,7 @@
 using Identity.Infrastructure.IoC;
+using Authentication.Adapter.Configurations;
+using Authentication.Adapter.Extensions;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,12 +13,19 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy",
-            builder =>
-            builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
+        options.AddPolicy("CorsPolicy",
+                builder =>
+                builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
 });
+
+// Token and JWT service with Authentication Adapter
+var tokenConfigurations = new TokenConfigurations();
+new ConfigureFromConfigurationOptions<TokenConfigurations>(builder.Configuration.GetSection("TokenConfigurations"))
+        .Configure(tokenConfigurations);
+
+builder.Services.AddJwtSecurity(tokenConfigurations);
 
 new RootBootstrapper().BootstrapperRegisterServices(builder.Services, builder.Configuration);
 

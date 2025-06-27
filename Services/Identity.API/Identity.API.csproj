@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Adapters\Authentication.Adapter\Authentication.Adapter.csproj" />
     <ProjectReference Include="..\..\Modules\Identity.Application\Identity.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Identity.Infrastructure.IoC\Identity.Infrastructure.IoC.csproj" />
   </ItemGroup>

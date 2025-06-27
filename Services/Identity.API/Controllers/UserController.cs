@@ -1,7 +1,9 @@
+using Authentication.Adapter.Configurations;
 using System.Linq.Expressions;
 using Identity.Application.AppUser.Input;
 using Identity.Application.AppUser.Interfaces;
 using Identity.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +20,7 @@ namespace Identity.API.Controllers
             _userAppService = userAppService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync()
         {
