@@ -36,5 +36,7 @@ app.MapOpenApi();
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
 app.MapControllers();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();

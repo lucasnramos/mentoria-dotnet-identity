@@ -51,6 +51,7 @@ namespace Identity.API.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
@@ -141,7 +142,7 @@ namespace Identity.API.Controllers
                 return BadRequest("Usuário não autenticado");
             }
 
-            var tokenIssuer = _configuration.GetSection("TokanConfigurations:Issuer").Value;
+            var tokenIssuer = _configuration.GetSection("TokenConfigurations:Issuer").Value;
             var tokenAudience = _configuration.GetSection("TokenConfigurations:Audience").Value;
 
             var token = GenerateToken.GetToken(user.Id, user.Email, user.Type, tokenIssuer, tokenAudience, signingConfigurations);
