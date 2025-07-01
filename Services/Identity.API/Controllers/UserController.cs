@@ -23,6 +23,7 @@ namespace Identity.API.Controllers
             _configuration = configuration;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync()
         {
@@ -70,6 +71,7 @@ namespace Identity.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] UserInput userInput)
         {
@@ -91,6 +93,7 @@ namespace Identity.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> UpdateUserAsync([FromQuery] Guid Id, [FromBody] UserInput userInput)
         {
@@ -109,6 +112,7 @@ namespace Identity.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete]
         public async Task<IActionResult> DeleteUserAsync([FromQuery] Guid Id)
         {
@@ -123,6 +127,7 @@ namespace Identity.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("all")]
         public async Task<IActionResult> DeleteAllUsersAsync()
         {
