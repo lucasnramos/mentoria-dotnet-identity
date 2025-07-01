@@ -3,17 +3,14 @@ using System.Security.Cryptography;
 public sealed class PasswordHasher
 {
     private const int SaltSize = 16;
-    private const int HashSize = 20;
+    private const int HashSize = 32;
 
     public static string Hash(string password, int iterations)
     {
-        byte[] salt;
-        using (RNGCryptoServiceProvider rngCsp = new())
-        {
-            rngCsp.GetBytes(salt = new byte[SaltSize]);
-        }
+        byte[] salt = new byte[SaltSize];
+        RandomNumberGenerator.Fill(salt);
 
-        var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations);
+        var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
         var hash = pbkdf2.GetBytes(HashSize);
         var hashBytes = new byte[SaltSize + HashSize];
 
@@ -56,13 +53,16 @@ public sealed class PasswordHasher
         Array.Copy(hashBytes, 0, salt, 0, SaltSize);
 
         //create hash with given salt
-        var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations);
+        var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
         byte[] hash = pbkdf2.GetBytes(HashSize);
 
         //get result
         for (var i = 0; i < HashSize; i++)
         {
-            if (hashBytes[i + SaltSize] != hash[i])
+            var hby = hashBytes[i + SaltSize];
+            var hashi = hash[i];
+
+            if (hby != hashi)
             {
                 return false;
             }

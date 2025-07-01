@@ -10,17 +10,21 @@ namespace Authentication.Adapter.Token
     public static class GenerateToken
     {
         const int tokenHours = 2;
-        public static TokenModel GetToken(Guid id, string login, string name, string role, string tokenIssuer, string tokenAudience, SigningConfigurations signingConfigurations)
+        public static TokenModel GetToken(Guid id,
+                                        string email,
+                                        int type,
+                                        string tokenIssuer,
+                                        string tokenAudience,
+                                        SigningConfigurations signingConfigurations)
         {
             var identity = new ClaimsIdentity(
-                new GenericIdentity(login!, "Login"),
+                new GenericIdentity(email!, "Email"),
                 new[] {
                         new Claim(JwtRegisteredClaimNames.Jti, id.ToString()),
-                        new Claim(JwtRegisteredClaimNames.UniqueName, login!),
-                        new Claim("userName", name),
-                        new Claim(ClaimTypes.Role, role)
+                        new Claim(JwtRegisteredClaimNames.UniqueName, email!),
+                        new Claim(ClaimTypes.Role, type.ToString())
                 }
-            ) ;
+            );
 
             var dateCreated = DateTime.Now;
             var dateExpiration = dateCreated + TimeSpan.FromHours(tokenHours);

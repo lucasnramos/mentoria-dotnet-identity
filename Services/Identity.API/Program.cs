@@ -20,15 +20,16 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader());
 });
 
+#region JWT
 // Token and JWT service with Authentication Adapter
 var tokenConfigurations = new TokenConfigurations();
 new ConfigureFromConfigurationOptions<TokenConfigurations>(builder.Configuration.GetSection("TokenConfigurations"))
         .Configure(tokenConfigurations);
 
 builder.Services.AddJwtSecurity(tokenConfigurations);
+#endregion
 
 new RootBootstrapper().BootstrapperRegisterServices(builder.Services, builder.Configuration);
-
 var app = builder.Build();
 
 app.MapOpenApi();

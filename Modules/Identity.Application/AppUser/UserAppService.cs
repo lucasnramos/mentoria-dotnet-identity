@@ -1,18 +1,23 @@
 using System;
 using System.IO.Pipes;
+using Authentication.Adapter;
 using Identity.Application.AppUser.Input;
 using Identity.Application.AppUser.Interfaces;
 using Identity.Domain.Entities;
 using Identity.Domain.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Identity.Application.AppUser;
 
-public class UserAppService(IUserRepository userRepository) : IUserAppService
+public class UserAppService(IUserRepository userRepository, IHttpContextAccessor accessor) : IUserAppService
 {
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IHttpContextAccessor _accessor = accessor;
 
     public async Task<IEnumerable<Users>> GetAllAsync()
     {
+        var loggedUser = Logged.GetUserLogged(_accessor);
         var users = await _userRepository.GetAllAsync();
         return users;
     }
@@ -113,4 +118,20 @@ public class UserAppService(IUserRepository userRepository) : IUserAppService
         }
     }
 
+    public async Task<Users> LoginAsync(string email, string password)
+    {
+        var user = await _userRepository.GetByEmailAsync(email);
+
+        if (user != null)
+        {
+            var isValidPassword = PasswordHasher.Verify(password, user.Password);
+
+            if (isValidPassword)
+            {
+                return user;
+            }
+        }
+
+        return null;
+    }
 }

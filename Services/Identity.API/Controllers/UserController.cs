@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Authentication.Adapter.Token;
 
 namespace Identity.API.Controllers
 {
@@ -15,12 +16,13 @@ namespace Identity.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserAppService _userAppService;
-        public UserController(IUserAppService userAppService)
+        private readonly IConfiguration _configuration;
+        public UserController(IUserAppService userAppService, IConfiguration configuration)
         {
             _userAppService = userAppService;
+            _configuration = configuration;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync()
         {
@@ -28,6 +30,7 @@ namespace Identity.API.Controllers
             return Ok(users);
         }
 
+        [Authorize]
         [HttpGet("email/{email}")]
         public async Task<IActionResult> GetUserByEmailAsync(string email)
         {
@@ -124,6 +127,26 @@ namespace Identity.API.Controllers
         {
             await _userAppService.DeleteAllAsync();
             return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        public async Task<object> Login([FromBody] UserInput input,
+                                        [FromServices] SigningConfigurations signingConfigurations)
+        {
+            var user = await _userAppService.LoginAsync(input.Email, input.Password);
+
+            if (user == null)
+            {
+                return BadRequest("Usuário não autenticado");
+            }
+
+            var tokenIssuer = _configuration.GetSection("TokanConfigurations:Issuer").Value;
+            var tokenAudience = _configuration.GetSection("TokenConfigurations:Audience").Value;
+
+            var token = GenerateToken.GetToken(user.Id, user.Email, user.Type, tokenIssuer, tokenAudience, signingConfigurations);
+
+            return token;
         }
     }
 }

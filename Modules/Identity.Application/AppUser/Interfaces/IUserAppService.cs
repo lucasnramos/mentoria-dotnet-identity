@@ -13,4 +13,5 @@ public interface IUserAppService
     Task<Users> UpdateAsync(Guid id, UserInput userInput);
     Task DeleteAsync(Guid id);
     Task DeleteAllAsync();
+    Task<Users> LoginAsync(string login, string password);
 }
