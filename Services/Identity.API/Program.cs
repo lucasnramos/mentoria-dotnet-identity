@@ -2,6 +2,7 @@ using Identity.Infrastructure.IoC;
 using Authentication.Adapter.Configurations;
 using Authentication.Adapter.Extensions;
 using Microsoft.Extensions.Options;
+using Marraia.Notifications.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,8 @@ new ConfigureFromConfigurationOptions<TokenConfigurations>(builder.Configuration
 
 builder.Services.AddJwtSecurity(tokenConfigurations);
 #endregion
+
+builder.Services.AddSmartNotification();
 
 new RootBootstrapper().BootstrapperRegisterServices(builder.Services, builder.Configuration);
 var app = builder.Build();

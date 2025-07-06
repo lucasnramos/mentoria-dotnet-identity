@@ -8,16 +8,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Authentication.Adapter.Token;
+using Marraia.Notifications.Base;
+using MediatR;
+using Marraia.Notifications.Models;
 
 namespace Identity.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BaseController
     {
         private readonly IUserAppService _userAppService;
         private readonly IConfiguration _configuration;
-        public UserController(IUserAppService userAppService, IConfiguration configuration)
+        public UserController(IUserAppService userAppService, IConfiguration configuration, INotificationHandler<DomainNotification> notification) : base(notification)
         {
             _userAppService = userAppService;
             _configuration = configuration;
@@ -28,28 +31,15 @@ namespace Identity.API.Controllers
         public async Task<IActionResult> GetAllUsersAsync()
         {
             var users = await _userAppService.GetAllAsync();
-            return Ok(users);
+            return OkOrNotFound(users);
         }
 
         [Authorize]
         [HttpGet("email/{email}")]
         public async Task<IActionResult> GetUserByEmailAsync(string email)
         {
-            try
-            {
-                var userByEmail = await _userAppService.GetByEmailAsync(email);
-                return Ok(userByEmail);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-
-
+            var userByEmail = await _userAppService.GetByEmailAsync(email);
+            return OkOrNotFound(userByEmail);
         }
 
         [Authorize]
@@ -71,7 +61,6 @@ namespace Identity.API.Controllers
             }
         }
 
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] UserInput userInput)
         {

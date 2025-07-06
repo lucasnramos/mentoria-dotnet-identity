@@ -7,13 +7,15 @@ using Identity.Domain.Entities;
 using Identity.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Marraia.Notifications.Interfaces;
 
 namespace Identity.Application.AppUser;
 
-public class UserAppService(IUserRepository userRepository, IHttpContextAccessor accessor) : IUserAppService
+public class UserAppService(IUserRepository userRepository, IHttpContextAccessor accessor, ISmartNotification notification) : IUserAppService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IHttpContextAccessor _accessor = accessor;
+    private readonly ISmartNotification _notification;
 
     public async Task<IEnumerable<Users>> GetAllAsync()
     {
@@ -27,14 +29,17 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
         var isValidEmail = Users.IsValidEmail(email);
         if (!isValidEmail)
         {
-            throw new ArgumentException("Invalid email format.");
+            _notification.NewNotificationBadRequest("Invalid email format.");
+            return null;
         }
         var user = await _userRepository.GetByEmailAsync(email);
 
         if (user == null)
         {
-            throw new KeyNotFoundException($"User with email {email} not found.");
+            _notification.NewNotificationBadRequest($"User with email {email} not found.");
+            return null;
         }
+
         return user;
     }
 
