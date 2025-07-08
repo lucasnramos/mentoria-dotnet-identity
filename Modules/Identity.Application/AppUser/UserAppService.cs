@@ -7,13 +7,15 @@ using Identity.Domain.Entities;
 using Identity.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Marraia.Notifications.Interfaces;
 
 namespace Identity.Application.AppUser;
 
-public class UserAppService(IUserRepository userRepository, IHttpContextAccessor accessor) : IUserAppService
+public class UserAppService(IUserRepository userRepository, IHttpContextAccessor accessor, ISmartNotification notification) : IUserAppService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IHttpContextAccessor _accessor = accessor;
+    private readonly ISmartNotification _notification;
 
     public async Task<IEnumerable<Users>> GetAllAsync()
     {
@@ -27,14 +29,17 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
         var isValidEmail = Users.IsValidEmail(email);
         if (!isValidEmail)
         {
-            throw new ArgumentException("Invalid email format.");
+            _notification.NewNotificationBadRequest("Invalid email format.");
+            return null;
         }
         var user = await _userRepository.GetByEmailAsync(email);
 
         if (user == null)
         {
-            throw new KeyNotFoundException($"User with email {email} not found.");
+            _notification.NewNotificationBadRequest($"User with email {email} not found.");
+            return null;
         }
+
         return user;
     }
 
@@ -42,13 +47,15 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id cannot be empty.", nameof(id));
+            _notification.NewNotificationBadRequest("Id cannot be empty.");
+            return null;
         }
 
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
         {
-            throw new KeyNotFoundException($"User with Id {id} not found.");
+            _notification.NewNotificationBadRequest($"User with Id {id} not found.");
+            return null;
         }
         return user;
     }
@@ -60,12 +67,14 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
         var hasUser = await _userRepository.GetByEmailAsync(userInput.Email);
         if (!isValidInput)
         {
-            throw new ArgumentException($"Invalid user input: {errorMessage}");
+            _notification.NewNotificationBadRequest($"Invalid user input: {errorMessage}");
+            return null;
         }
 
         if (hasUser != null)
         {
-            throw new ArgumentException($"User with email {userInput.Email} already exists.");
+            _notification.NewNotificationConflict($"User with email {userInput.Email} already exists.");
+            return null;
         }
         await _userRepository.InsertAsync(user);
         return user;
@@ -75,11 +84,13 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id is required"); // needs better error handling and messages
+            _notification.NewNotificationBadRequest("Id cannot be empty.");
+            return null;
         }
         if (userInput == null)
         {
-            throw new ArgumentException("User information is required");
+            _notification.NewNotificationBadRequest("User information is required.");
+            return null;
         }
 
         var user = await _userRepository.GetByIdAsync(id);
@@ -100,7 +111,8 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id is required");
+            _notification.NewNotificationBadRequest("Id is required.");
+            return;
         }
         await _userRepository.DeleteAsync(id);
     }
