@@ -46,74 +46,34 @@ namespace Identity.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
-            try
-            {
-                var user = await _userAppService.GetByIdAsync(id);
-                return Ok(user);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var user = await _userAppService.GetByIdAsync(id);
+            return OkOrNotFound(user);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] UserInput userInput)
         {
-            try
-            {
-                var newUser = await _userAppService.InsertAsync(userInput);
-                var id = newUser.Id;
-                // CreatedAtAction is returning System.InvalidOperationException: No route matches the supplied values.
-                // return CreatedAtAction(nameof(GetUserByIdAsync), new { id }, newUser);
-                return Created($"api/user/{id}", newUser);
-            }
-            catch (ArgumentException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
+
+            var newUser = await _userAppService.InsertAsync(userInput);
+            return CreatedContent("", newUser);
         }
 
         [Authorize]
         [HttpPut]
         public async Task<IActionResult> UpdateUserAsync([FromQuery] Guid Id, [FromBody] UserInput userInput)
         {
-            try
-            {
-                var user = await _userAppService.UpdateAsync(Id, userInput);
-                return Accepted(user);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+
+            var user = await _userAppService.UpdateAsync(Id, userInput);
+            return AcceptedOrContent(user);
         }
 
         [Authorize]
         [HttpDelete]
         public async Task<IActionResult> DeleteUserAsync([FromQuery] Guid Id)
         {
-            try
-            {
-                await _userAppService.DeleteAsync(Id);
-                return NoContent();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
+            await _userAppService.DeleteAsync(Id);
+            return NoContent();
         }
 
         [Authorize]
