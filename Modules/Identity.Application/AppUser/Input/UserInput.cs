@@ -16,5 +16,5 @@ public class UserInput
     [DataType(DataType.Password)]
     [Required]
     public required string Password { get; set; }
-    public required int Type { get; set; }
+    public required string Role { get; set; }
 }

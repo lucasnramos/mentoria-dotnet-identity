@@ -99,7 +99,7 @@ namespace Identity.API.Controllers
             var tokenIssuer = _configuration.GetSection("TokenConfigurations:Issuer").Value;
             var tokenAudience = _configuration.GetSection("TokenConfigurations:Audience").Value;
 
-            var token = GenerateToken.GetToken(user.Id, user.Email, user.Type, tokenIssuer, tokenAudience, signingConfigurations);
+            var token = GenerateToken.GetToken(user.Id, user.Email, user.Role, tokenIssuer, tokenAudience, signingConfigurations);
 
             return token;
         }

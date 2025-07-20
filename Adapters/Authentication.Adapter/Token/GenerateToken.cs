@@ -12,7 +12,7 @@ namespace Authentication.Adapter.Token
         const int tokenHours = 2;
         public static TokenModel GetToken(Guid id,
                                         string email,
-                                        int type,
+                                        string role,
                                         string tokenIssuer,
                                         string tokenAudience,
                                         SigningConfigurations signingConfigurations)
@@ -22,7 +22,7 @@ namespace Authentication.Adapter.Token
                 new[] {
                         new Claim(JwtRegisteredClaimNames.Jti, id.ToString()),
                         new Claim(JwtRegisteredClaimNames.UniqueName, email!),
-                        new Claim(ClaimTypes.Role, type.ToString())
+                        new Claim(ClaimTypes.Role, role)
                 }
             );
 

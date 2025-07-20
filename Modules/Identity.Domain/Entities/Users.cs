@@ -9,31 +9,30 @@ public class Users : Entity<Guid>
     public Users(string name,
                 string email,
                 string password,
-                int type)
+                string role)
     {
         Name = name;
         Email = email;
         Password = PasswordHasher.Hash(password);
-        Type = type;
+        Role = role;
         Id = Guid.NewGuid();
     }
 
     public string Name { get; private set; }
     public string Email { get; private set; }
     public string Password { get; private set; }
-    public int Type { get; private set; }
+    public string Role { get; private set; }
 
     public bool VerifyPassword(string password)
     {
         return PasswordHasher.Verify(Password, password);
     }
 
-    public void Update(string name, string email, string password, int type)
+    public void Update(string name, string email, string password, string role)
     {
         Name = name;
         Email = email;
-        // Password = password; 
-        Type = type;
+        Role = role;
     }
 
     public bool IsValidUser(out string errorMessage)

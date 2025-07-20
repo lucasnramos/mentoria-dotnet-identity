@@ -1,3 +1,4 @@
 {
-    "dotnet.defaultSolution": "Identity.sln"
+  "dotnet.defaultSolution": "Identity.sln",
+  "editor.formatOnSave": false
 }

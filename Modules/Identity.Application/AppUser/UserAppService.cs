@@ -62,7 +62,7 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
 
     public async Task<Users> InsertAsync(UserInput userInput)
     {
-        var user = new Users(userInput.Name, userInput.Email, userInput.Password, userInput.Type);
+        var user = new Users(userInput.Name, userInput.Email, userInput.Password, userInput.Role);
         var isValidInput = user.IsValidUser(out string errorMessage);
         var hasUser = await _userRepository.GetByEmailAsync(userInput.Email);
         if (!isValidInput)
@@ -101,7 +101,7 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
             return newUser;
         }
 
-        user.Update(userInput.Name, userInput.Email, userInput.Password, userInput.Type);
+        user.Update(userInput.Name, userInput.Email, userInput.Password, userInput.Role);
         await _userRepository.UpdateAsync(user);
 
         return user;
