@@ -7,8 +7,11 @@ public sealed class PasswordHasher
 
     public static string Hash(string password, int iterations)
     {
-        byte[] salt = new byte[SaltSize];
-        RandomNumberGenerator.Fill(salt);
+        byte[] salt;
+        using (RNGCryptoServiceProvider rngCsp = new())
+        {
+            rngCsp.GetBytes(salt = new byte[SaltSize]);
+        }
 
         var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
         var hash = pbkdf2.GetBytes(HashSize);
@@ -34,39 +37,39 @@ public sealed class PasswordHasher
 
     public static bool Verify(string password, string hashedPassword)
     {
-        //check hash
         if (!IsHashSupported(hashedPassword))
         {
+            Console.WriteLine($"[Diagnostics] Hash not supported: {hashedPassword}");
             throw new NotSupportedException("The hashtype is not supported");
         }
 
-        //extract iteration and Base64 string
         var splittedHashString = hashedPassword.Replace("$PWDHASH$V1$", "").Split('$');
         var iterations = int.Parse(splittedHashString[0]);
         var base64Hash = splittedHashString[1];
 
-        //get hashbytes
         var hashBytes = Convert.FromBase64String(base64Hash);
+        Console.WriteLine($"[Diagnostics] hashBytes (Base64): {base64Hash}");
+        Console.WriteLine($"[Diagnostics] hashBytes (Hex): {BitConverter.ToString(hashBytes)}");
 
-        //get salt
         var salt = new byte[SaltSize];
         Array.Copy(hashBytes, 0, salt, 0, SaltSize);
+        Console.WriteLine($"[Diagnostics] salt (Hex): {BitConverter.ToString(salt)}");
 
-        //create hash with given salt
         var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
         byte[] hash = pbkdf2.GetBytes(HashSize);
+        Console.WriteLine($"[Diagnostics] hash (Hex): {BitConverter.ToString(hash)}");
 
-        //get result
+        bool match = true;
         for (var i = 0; i < HashSize; i++)
         {
-            var hby = hashBytes[i + SaltSize];
-            var hashi = hash[i];
-
-            if (hby != hashi)
+            if (hashBytes[i + SaltSize] != hash[i])
             {
-                return false;
+                Console.WriteLine($"[Diagnostics] Mismatch at byte {i}: stored={hashBytes[i + SaltSize]}, computed={hash[i]}");
+                match = false;
             }
         }
-        return true;
+        Console.WriteLine($"[Diagnostics] Password match: {match}");
+        return match;
     }
+
 }

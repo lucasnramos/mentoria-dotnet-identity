@@ -62,7 +62,8 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
 
     public async Task<Users> InsertAsync(UserInput userInput)
     {
-        var user = new Users(userInput.Name, userInput.Email, userInput.Password, userInput.Type);
+        var hashedPassword = PasswordHasher.Hash(userInput.Password);
+        var user = new Users(userInput.Name, userInput.Email, hashedPassword, userInput.Type);
         var isValidInput = user.IsValidUser(out string errorMessage);
         var hasUser = await _userRepository.GetByEmailAsync(userInput.Email);
         if (!isValidInput)

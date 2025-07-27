@@ -13,7 +13,7 @@ public class Users : Entity<Guid>
     {
         Name = name;
         Email = email;
-        Password = PasswordHasher.Hash(password);
+        Password = password;
         Type = type;
         Id = Guid.NewGuid();
     }
@@ -23,9 +23,9 @@ public class Users : Entity<Guid>
     public string Password { get; private set; }
     public int Type { get; private set; }
 
-    public bool VerifyPassword(string password)
+    public bool VerifyPassword(string hashedPassword)
     {
-        return PasswordHasher.Verify(Password, password);
+        return PasswordHasher.Verify(Password, hashedPassword);
     }
 
     public void Update(string name, string email, string password, int type)
