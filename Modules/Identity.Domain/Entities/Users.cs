@@ -9,30 +9,30 @@ public class Users : Entity<Guid>
     public Users(string name,
                 string email,
                 string password,
-                string role)
+                int type)
     {
         Name = name;
         Email = email;
-        Password = PasswordHasher.Hash(password);
-        Role = role;
+        Password = password;
+        Type = type;
         Id = Guid.NewGuid();
     }
 
     public string Name { get; private set; }
     public string Email { get; private set; }
     public string Password { get; private set; }
-    public string Role { get; private set; }
+    public int Type { get; private set; }
 
     public bool VerifyPassword(string hashedPassword)
     {
         return PasswordHasher.Verify(Password, hashedPassword);
     }
 
-    public void Update(string name, string email, string role)
+    public void Update(string name, string email, int role)
     {
         Name = name;
         Email = email;
-        Role = role;
+        Type = role;
     }
 
     public bool IsValidUser(out string errorMessage)
@@ -60,4 +60,5 @@ public class Users : Entity<Guid>
     {
         return !string.IsNullOrEmpty(email) && email.Contains('@') && email.Contains('.');
     }
+
 }

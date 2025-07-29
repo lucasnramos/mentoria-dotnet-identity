@@ -105,7 +105,7 @@ namespace Identity.API.Controllers
                 return BadRequest("Token issuer or audience is not configured.");
             }
 
-            var token = GenerateToken.GetToken(user.Id, user.Email, user.Role, tokenIssuer, tokenAudience, signingConfigurations);
+            var token = GenerateToken.GetToken(user.Id, user.Email, user.Type, tokenIssuer, tokenAudience, signingConfigurations);
 
             return token;
         }
