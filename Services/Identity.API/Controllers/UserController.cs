@@ -76,8 +76,9 @@ namespace Identity.API.Controllers
             return NoContent();
         }
 
-        [Authorize]
-        [HttpDelete("all")]
+        // [Authorize]
+        [HttpDelete]
+        [Route("all")]
         public async Task<IActionResult> DeleteAllUsersAsync()
         {
             await _userAppService.DeleteAllAsync();
@@ -93,11 +94,16 @@ namespace Identity.API.Controllers
 
             if (user == null)
             {
-                return BadRequest("Usuário não autenticado");
+                return BadRequest("Invalid email or password.");
             }
 
             var tokenIssuer = _configuration.GetSection("TokenConfigurations:Issuer").Value;
             var tokenAudience = _configuration.GetSection("TokenConfigurations:Audience").Value;
+
+            if (string.IsNullOrEmpty(tokenIssuer) || string.IsNullOrEmpty(tokenAudience))
+            {
+                return BadRequest("Token issuer or audience is not configured.");
+            }
 
             var token = GenerateToken.GetToken(user.Id, user.Email, user.Role, tokenIssuer, tokenAudience, signingConfigurations);
 

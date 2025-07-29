@@ -15,7 +15,7 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IHttpContextAccessor _accessor = accessor;
-    private readonly ISmartNotification _notification;
+    private readonly ISmartNotification _notification = notification;
 
     public async Task<IEnumerable<Users>> GetAllAsync()
     {
@@ -101,7 +101,7 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
             return newUser;
         }
 
-        user.Update(userInput.Name, userInput.Email, userInput.Password, userInput.Role);
+        user.Update(userInput.Name, userInput.Email, userInput.Role);
         await _userRepository.UpdateAsync(user);
 
         return user;

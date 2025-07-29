@@ -28,7 +28,7 @@ public class Users : Entity<Guid>
         return PasswordHasher.Verify(Password, password);
     }
 
-    public void Update(string name, string email, string password, string role)
+    public void Update(string name, string email, string role)
     {
         Name = name;
         Email = email;
