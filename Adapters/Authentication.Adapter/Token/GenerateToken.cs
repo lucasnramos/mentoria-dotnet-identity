@@ -17,6 +17,13 @@ namespace Authentication.Adapter.Token
                                         string tokenAudience,
                                         SigningConfigurations signingConfigurations)
         {
+            var role = type switch
+            {
+                1 => "Admin",
+                2 => "User",
+                _ => "Guest"
+            };
+
             var identity = new ClaimsIdentity(
                 new GenericIdentity(email!, "Email"),
                 new[] {

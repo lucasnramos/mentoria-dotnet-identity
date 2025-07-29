@@ -23,9 +23,9 @@ public class Users : Entity<Guid>
     public string Password { get; private set; }
     public string Role { get; private set; }
 
-    public bool VerifyPassword(string password)
+    public bool VerifyPassword(string hashedPassword)
     {
-        return PasswordHasher.Verify(Password, password);
+        return PasswordHasher.Verify(Password, hashedPassword);
     }
 
     public void Update(string name, string email, string role)

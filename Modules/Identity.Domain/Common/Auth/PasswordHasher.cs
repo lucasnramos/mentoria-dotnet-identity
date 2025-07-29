@@ -37,21 +37,17 @@ public sealed class PasswordHasher
 
     public static bool Verify(string password, string hashedPassword)
     {
-        //check hash
         if (!IsHashSupported(hashedPassword))
         {
             throw new NotSupportedException("The hashtype is not supported");
         }
 
-        //extract iteration and Base64 string
         var splittedHashString = hashedPassword.Replace("$PWDHASH$V1$", "").Split('$');
         var iterations = int.Parse(splittedHashString[0]);
         var base64Hash = splittedHashString[1];
 
-        //get hashbytes
         var hashBytes = Convert.FromBase64String(base64Hash);
 
-        //get salt
         var salt = new byte[SaltSize];
         Array.Copy(hashBytes, 0, salt, 0, SaltSize);
 
@@ -59,14 +55,15 @@ public sealed class PasswordHasher
         var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations);
         byte[] hash = pbkdf2.GetBytes(HashSize);
 
-        //get result
+        bool match = true;
         for (var i = 0; i < HashSize; i++)
         {
             if (hashBytes[i + SaltSize] != hash[i])
             {
-                return false;
+                match = false;
             }
         }
-        return true;
+        return match;
     }
+
 }
