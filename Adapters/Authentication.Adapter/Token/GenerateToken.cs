@@ -12,6 +12,7 @@ namespace Authentication.Adapter.Token
         const int tokenHours = 2;
         public static TokenModel GetToken(Guid id,
                                         string email,
+                                        string name,
                                         int role,
                                         string tokenIssuer,
                                         string tokenAudience,
@@ -28,8 +29,9 @@ namespace Authentication.Adapter.Token
                 new GenericIdentity(email!, "Email"),
                 new[] {
                         new Claim(JwtRegisteredClaimNames.Jti, id.ToString()),
-                        new Claim(JwtRegisteredClaimNames.UniqueName, email!),
-                        new Claim(ClaimTypes.Role, userRole)
+                        new Claim(JwtRegisteredClaimNames.UniqueName, name!),
+                        new Claim(ClaimTypes.Role, userRole),
+                        new Claim(JwtRegisteredClaimNames.Email, email!)
                 }
             );
 
