@@ -24,7 +24,7 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
         return users;
     }
 
-    public async Task<Users> GetByEmailAsync(string email)
+    public async Task<Users?> GetByEmailAsync(string email)
     {
         var isValidEmail = Users.IsValidEmail(email);
         if (!isValidEmail)
@@ -43,7 +43,7 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
         return user;
     }
 
-    public async Task<Users> GetByIdAsync(Guid id)
+    public async Task<Users?> GetByIdAsync(Guid id)
     {
         if (id == Guid.Empty)
         {
@@ -60,12 +60,13 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
         return user;
     }
 
-    public async Task<Users> InsertAsync(UserInput userInput)
+    public async Task<Users?> InsertAsync(UserInput userInput)
     {
         var hashedPassword = PasswordHasher.Hash(userInput.Password);
         var user = new Users(userInput.Name, userInput.Email, hashedPassword, userInput.Type);
         var isValidInput = user.IsValidUser(out string errorMessage);
         var hasUser = await _userRepository.GetByEmailAsync(userInput.Email);
+
         if (!isValidInput)
         {
             _notification.NewNotificationBadRequest($"Invalid user input: {errorMessage}");
@@ -77,11 +78,12 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
             _notification.NewNotificationConflict($"User with email {userInput.Email} already exists.");
             return null;
         }
+
         await _userRepository.InsertAsync(user);
         return user;
     }
 
-    public async Task<Users> UpdateAsync(Guid id, UserInput userInput)
+    public async Task<Users?> UpdateAsync(Guid id, UserInput userInput)
     {
         if (id == Guid.Empty)
         {
@@ -131,20 +133,24 @@ public class UserAppService(IUserRepository userRepository, IHttpContextAccessor
         }
     }
 
-    public async Task<Users> LoginAsync(string email, string password)
+    public async Task<Users?> LoginAsync(string email, string password)
     {
         var user = await _userRepository.GetByEmailAsync(email);
 
-        if (user != null)
+        if (user == null)
         {
-            var isValidPassword = PasswordHasher.Verify(password, user.Password);
-
-            if (isValidPassword)
-            {
-                return user;
-            }
+            _notification.NewNotificationBadRequest($"User with email {email} was not found.");
+            return null;
         }
 
-        return null;
+        var isValidPassword = PasswordHasher.Verify(password, user.Password);
+
+        if (!isValidPassword)
+        {
+            _notification.NewNotificationBadRequest("Invalid password.");
+            return null;
+        }
+
+        return user;
     }
 }

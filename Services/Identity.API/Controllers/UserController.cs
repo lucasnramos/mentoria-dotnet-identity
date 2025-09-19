@@ -87,7 +87,7 @@ namespace Identity.API.Controllers
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<object> Login([FromBody] UserInput input,
+        public async Task<object> Login([FromBody] LoginInput input,
                                         [FromServices] SigningConfigurations signingConfigurations)
         {
             var user = await _userAppService.LoginAsync(input.Email, input.Password);
