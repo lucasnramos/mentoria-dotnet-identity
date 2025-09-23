@@ -17,15 +17,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Authenticate to GCP
-        uses: google-github-actions/setup-gcloud@v1
+      - name: Authenticate to GCP (service account key)
+        uses: google-github-actions/auth@v1
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}    # JSON key
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          export_default_credentials: true
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configure docker to use gcr
-        run: gcloud auth configure-docker --quiet
+      - name: Configure gcloud project & debug auth
+        run: |
+          set -eux
+          # Set the project for subsequent gcloud commands
+          gcloud config set project "${{ secrets.GCP_PROJECT_ID }}"
+          # Debug info: who is authenticated and current config
+          gcloud --version
+          gcloud auth list
+          gcloud config list
+
+      - name: Configure docker to authenticate with GCR
+        run: |
+          set -eux
+          gcloud auth configure-docker --quiet
+
+      - name: Pre-build debug
+        run: |
+          set -eux
+          echo "--- gcloud auth list ---"
+          gcloud auth list
+          echo "--- gcloud config get-value project ---"
+          gcloud config get-value project
+          echo "--- docker info (client) ---"
+          docker --version || true
+          # show docker credential helpers (non-sensitive)
+          jq -r '.credsStore // .auths' ~/.docker/config.json || true
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
