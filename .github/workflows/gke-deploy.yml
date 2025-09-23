@@ -8,6 +8,8 @@ on:
 
 env:
   IMAGE_NAME: identity-api
+  ARTIFACT_REGISTRY_LOCATION: us-central1
+  ARTIFACT_REGISTRY_REPOSITORY: identity-repo
 
 jobs:
   build-and-deploy:
@@ -32,10 +34,23 @@ jobs:
           gcloud auth list
           gcloud config list
 
-      - name: Configure docker to authenticate with GCR
+      - name: Ensure Artifact Registry repository exists
         run: |
           set -eux
-          gcloud auth configure-docker --quiet
+          REPO="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}"
+          LOCATION="${{ env.ARTIFACT_REGISTRY_LOCATION }}"
+          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
+          if ! gcloud artifacts repositories describe "$REPO" --location="$LOCATION" --project="$PROJECT" >/dev/null 2>&1; then
+            gcloud artifacts repositories create "$REPO" --repository-format=docker --location="$LOCATION" --project="$PROJECT"
+          else
+            echo "Artifact Registry repo '$REPO' already exists in $LOCATION"
+          fi
+
+      - name: Configure docker to authenticate with Artifact Registry
+        run: |
+          set -eux
+          # Configure docker credential helper for Artifact Registry domain
+          gcloud auth configure-docker "${{ env.ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev" --quiet
 
       - name: Pre-build debug
         run: |
@@ -49,13 +64,13 @@ jobs:
           # show docker credential helpers (non-sensitive)
           jq -r '.credsStore // .auths' ~/.docker/config.json || true
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image to Artifact Registry
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          tags: ${{ env.ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Get GKE credentials
         run: |
