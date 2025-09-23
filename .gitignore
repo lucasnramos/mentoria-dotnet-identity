@@ -222,3 +222,4 @@ node_modules/
 *.msix
 *.msm
 *.msp
+gcp-sa-key.json
