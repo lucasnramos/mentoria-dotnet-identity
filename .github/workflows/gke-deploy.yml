@@ -9,7 +9,7 @@ on:
 env:
   IMAGE_NAME: identity-api
   gke_zone: ${{ secrets.GKE_ZONE }}
-  ARTIFACT_REGISTRY_LOCATION: ${{ secrets.GKE_ZONE }}
+  ARTIFACT_REGISTRY_LOCATION: southamerica-east1
   ARTIFACT_REGISTRY_REPOSITORY: identity-repo
 
 jobs:
