@@ -31,18 +31,6 @@ jobs:
           # Set the project for subsequent gcloud commands
           gcloud config set project "${{ secrets.GCP_PROJECT_ID }}"
 
-      - name: Ensure Artifact Registry repository exists
-        run: |
-          set -eux
-          REPO="${{ env.ARTIFACT_REGISTRY_REPOSITORY }}"
-          LOCATION="${{ env.ARTIFACT_REGISTRY_LOCATION }}"
-          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
-          if ! gcloud artifacts repositories describe "$REPO" --location="$LOCATION" --project="$PROJECT" >/dev/null 2>&1; then
-            gcloud artifacts repositories create "$REPO" --repository-format=docker --location="$LOCATION" --project="$PROJECT"
-          else
-            echo "Artifact Registry repo '$REPO' already exists in $LOCATION"
-          fi
-
       - name: Configure docker to authenticate with Artifact Registry
         run: |
           set -eux
