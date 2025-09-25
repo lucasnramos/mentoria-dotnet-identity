@@ -8,7 +8,7 @@ on:
 
 env:
   IMAGE_NAME: identity-api
-  gke_zone: ${{ secrets.GKE_ZONE }}
+  GKE_LOCATION: ${{ secrets.GKE_ZONE }}
   ARTIFACT_REGISTRY_LOCATION: southamerica-east1
   ARTIFACT_REGISTRY_REPOSITORY: identity-repo
 
@@ -49,7 +49,7 @@ jobs:
         run: |
           set -e
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} \
-            --zone ${{ env.gke_zone }} \
+            --zone ${{ env.GKE_LOCATION }} \
             --project ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Deploy to GKE (apply manifests & update image)
