@@ -23,6 +23,12 @@ spec:
           env:
             - name: ASPNETCORE_URLS
               value: "http://+:80"
+            - name: TokenConfigurations__Audience
+              value: "https://sapateiro.lucasnramos.com/"
+            - name: TokenConfigurations__Issuer
+              value: "https://sapateiro.lucasnramos.com/"
+            - name: TokenConfigurations__Secret
+              value: "VGVzdGVzIGNvbSAuTkVUIDYsIEFTUC5ORVQgQ29yZSBlIEpXVA=="
           readinessProbe:
             httpGet:
               path: /health

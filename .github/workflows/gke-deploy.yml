@@ -1,6 +1,5 @@
 name: Build and Deploy to GKE
 
-# Trigger on pushes to master and manual runs
 on:
   push:
     branches: [ "master" ]
@@ -28,13 +27,11 @@ jobs:
       - name: Configure gcloud project
         run: |
           set -e
-          # Set the project for subsequent gcloud commands
           gcloud config set project "${{ secrets.GCP_PROJECT_ID }}"
 
       - name: Configure docker to authenticate with Artifact Registry
         run: |
           set -eux
-          # Configure docker credential helper for Artifact Registry domain
           gcloud auth configure-docker "${{ env.ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev" --quiet
 
       - name: Build and push Docker image to Artifact Registry
