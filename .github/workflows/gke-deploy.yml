@@ -8,7 +8,8 @@ on:
 
 env:
   IMAGE_NAME: identity-api
-  ARTIFACT_REGISTRY_LOCATION: us-central1
+  gke_zone: ${{ secrets.GKE_ZONE }}
+  ARTIFACT_REGISTRY_LOCATION: ${{ secrets.GKE_ZONE }}
   ARTIFACT_REGISTRY_REPOSITORY: identity-repo
 
 jobs:
@@ -24,15 +25,11 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configure gcloud project & debug auth
+      - name: Configure gcloud project
         run: |
-          set -eux
+          set -e
           # Set the project for subsequent gcloud commands
           gcloud config set project "${{ secrets.GCP_PROJECT_ID }}"
-          # Debug info: who is authenticated and current config
-          gcloud --version
-          gcloud auth list
-          gcloud config list
 
       - name: Ensure Artifact Registry repository exists
         run: |
@@ -52,18 +49,6 @@ jobs:
           # Configure docker credential helper for Artifact Registry domain
           gcloud auth configure-docker "${{ env.ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev" --quiet
 
-      - name: Pre-build debug
-        run: |
-          set -eux
-          echo "--- gcloud auth list ---"
-          gcloud auth list
-          echo "--- gcloud config get-value project ---"
-          gcloud config get-value project
-          echo "--- docker info (client) ---"
-          docker --version || true
-          # show docker credential helpers (non-sensitive)
-          jq -r '.credsStore // .auths' ~/.docker/config.json || true
-
       - name: Build and push Docker image to Artifact Registry
         uses: docker/build-push-action@v4
         with:
@@ -74,22 +59,17 @@ jobs:
 
       - name: Get GKE credentials
         run: |
+          set -e
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} \
-            --zone ${{ secrets.GKE_ZONE }} \
+            --zone ${{ env.gke_zone }} \
             --project ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Deploy to GKE (apply manifests & update image)
         run: |
           # ensure k8s manifests exist at k8s/deployment.yaml and k8s/service.yaml
           kubectl apply -f k8s/deployment.yaml -f k8s/service.yaml || true
-          kubectl set image deployment/identity-api identity-api=gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }} --record
+          kubectl set image deployment/identity-api identity-api=${{ env.ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} --record
           kubectl rollout status deployment/identity-api --timeout=120s
 
       - name: Output service info
         run: kubectl get svc identity-api -o wide
-
-# Required repository secrets:
-# - GCP_SA_KEY (service account JSON)
-# - GCP_PROJECT_ID
-# - GKE_CLUSTER
-# - GKE_ZONE

@@ -14,7 +14,9 @@ spec:
     spec:
       containers:
         - name: identity-api
-          image: us-central1-docker.pkg.dev/GCP_PROJECT_ID/identity-repo/identity-api:latest
+          # Placeholder image: the CI workflow will patch this with the actual image
+          # during deployment using `kubectl set image`.
+          image: REPLACE_IMAGE
           imagePullPolicy: Always
           ports:
             - containerPort: 80
