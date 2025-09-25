@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
         - name: identity-api
-          # Artifact Registry image format: LOCATION-docker.pkg.dev/PROJECT/REPO/IMAGE:TAG
-          image: us-central1-docker.pkg.dev/PROJECT_ID/identity-repo/identity-api:latest
+          image: us-central1-docker.pkg.dev/GCP_PROJECT_ID/identity-repo/identity-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
